@@ -45,7 +45,7 @@ class Stock(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     id_book: Mapped[int] = mapped_column(ForeignKey("book.id"))
     id_publisher: Mapped[int] = mapped_column(ForeignKey("publisher.id"))
-    count: Mapped[int]
+    count: Mapped[int] = mapped_column(Numeric())
 
     book: Mapped['Book'] = relationship(back_populates='stock')
     publisher: Mapped['Publisher'] = relationship(back_populates='stock')
