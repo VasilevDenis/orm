@@ -1,6 +1,8 @@
 from typing import List
 from typing import Optional
 from sqlalchemy import ForeignKey
+from sqlalchemy import DateTime
+from sqlalchemy import Numeric
 from sqlalchemy import String
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
@@ -18,7 +20,7 @@ class Publisher(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(40))
 
-    books = Mapped[List['Book']] = relationship(back_populates='publisher', cascade='all, delete-orphan')
+    books: Mapped[List['Book']] = relationship(back_populates='publisher', cascade='all, delete-orphan')
 
     def __repr__(self) -> str:
         return f'Publisher(id={self.id!r}, name={self.name!r}'
@@ -48,9 +50,11 @@ class Stock(Base):
     book: Mapped['Book'] = relationship(back_populates='stock')
     publisher: Mapped['Publisher'] = relationship(back_populates='stock')
     shop: Mapped['Shop'] = relationship(back_populates='stock')
+    sales: Mapped[List['Sale']] = relationship(back_populates='stock')
 
     def __repr__(self) -> str:
-        return f'Stock(id={self.id!r}, book_id={self.id_book!r}, publisher_id={self.id_publisher!r}'
+        return f'Stock(id={self.id!r}, book_id={self.id_book!r}, publisher_id={self.id_publisher!r},' \
+               f'count={self.count!r}'
 
 
 class Shop(Base):
@@ -59,7 +63,7 @@ class Shop(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(40))
 
-    books = Mapped[List['Book']] = relationship(back_populates='shop')
+    books: Mapped[List['Book']] = relationship(back_populates='shop', cascade='all, delete-orphan')
 
     def __repr__(self) -> str:
         return f'Shop(id={self.id!r}, name={self.name!r}'
@@ -69,14 +73,13 @@ class Sale(Base):
     __tablename__ = 'sale'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    price: Mapped[int]
-    data_sale: Mapped[str]
+    price: Mapped[int] = mapped_column(Numeric())
+    data_sale: Mapped[str] = mapped_column(DateTime())
     id_stock: Mapped[int] = mapped_column(ForeignKey("stock.id"))
-    count: Mapped[int]
+    count: Mapped[int] = mapped_column(Numeric())
 
     stock: Mapped['Stock'] = relationship(back_populates='sale')
 
     def __repr__(self) -> str:
         return f'Sale(id={self.id!r}, price={self.price!r}, date_sale={self.data_sale!r}, count={self.count!r}'
-
 
