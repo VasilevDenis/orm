@@ -34,6 +34,7 @@ class Book(Base):
     publisher_id: Mapped[int] = mapped_column(ForeignKey("publisher.id"))
 
     publisher: Mapped['Publisher'] = relationship(back_populates='books')
+    stock: Mapped['Stock'] = relationship(back_populates='books')
 
     def __repr__(self) -> str:
         return f'Book(id={self.id!r}, title={self.title!r})'
@@ -44,16 +45,15 @@ class Stock(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     id_book: Mapped[int] = mapped_column(ForeignKey("book.id"))
-    id_publisher: Mapped[int] = mapped_column(ForeignKey("publisher.id"))
+    id_shop: Mapped[int] = mapped_column(ForeignKey("shop.id"))
     count: Mapped[int] = mapped_column(Numeric())
 
-    book: Mapped['Book'] = relationship(back_populates='stock')
-    publisher: Mapped['Publisher'] = relationship(back_populates='stock')
-    shop: Mapped['Shop'] = relationship(back_populates='stock')
+    books: Mapped[List['Book']] = relationship(back_populates='stock')
+    shops: Mapped[List['Shop']] = relationship(back_populates='stock')
     sales: Mapped[List['Sale']] = relationship(back_populates='stock')
 
     def __repr__(self) -> str:
-        return f'Stock(id={self.id!r}, book_id={self.id_book!r}, publisher_id={self.id_publisher!r},' \
+        return f'Stock(id={self.id!r}, book_id={self.id_book!r}, shop_id={self.id_shop!r},' \
                f'count={self.count!r}'
 
 
@@ -64,6 +64,7 @@ class Shop(Base):
     name: Mapped[str] = mapped_column(String(40))
 
     books: Mapped[List['Book']] = relationship(back_populates='shop', cascade='all, delete-orphan')
+    stock: Mapped[List['Stock']] = relationship(back_populates='shops')
 
     def __repr__(self) -> str:
         return f'Shop(id={self.id!r}, name={self.name!r}'
@@ -78,7 +79,7 @@ class Sale(Base):
     id_stock: Mapped[int] = mapped_column(ForeignKey("stock.id"))
     count: Mapped[int] = mapped_column(Numeric())
 
-    stock: Mapped['Stock'] = relationship(back_populates='sale')
+    stock: Mapped['Stock'] = relationship(back_populates='sales')
 
     def __repr__(self) -> str:
         return f'Sale(id={self.id!r}, price={self.price!r}, date_sale={self.data_sale!r}, count={self.count!r}'
