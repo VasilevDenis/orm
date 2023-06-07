@@ -3,6 +3,7 @@ from typing import Optional
 from sqlalchemy import ForeignKey
 from sqlalchemy import DateTime
 from sqlalchemy import Numeric
+from sqlalchemy import BigInteger
 from sqlalchemy import String
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
@@ -18,7 +19,7 @@ class Publisher(Base):
     __tablename__ = 'publisher'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(40))
+    name: Mapped[str] = mapped_column(String(40), nullable=False)
 
     books: Mapped[List['Book']] = relationship(back_populates='publisher', cascade='all, delete-orphan')
 
@@ -30,7 +31,7 @@ class Book(Base):
     __tablename__ = 'book'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    title: Mapped[str] = mapped_column(String(40))
+    title: Mapped[str] = mapped_column(String(40), nullable=False)
     publisher_id: Mapped[int] = mapped_column(ForeignKey("publisher.id"))
 
     publisher: Mapped['Publisher'] = relationship(back_populates='books')
@@ -46,11 +47,11 @@ class Stock(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     id_book: Mapped[int] = mapped_column(ForeignKey("book.id"))
     id_shop: Mapped[int] = mapped_column(ForeignKey("shop.id"))
-    count: Mapped[int] = mapped_column(Numeric())
+    count: Mapped[int] = mapped_column(BigInteger(), nullable=False)
 
-    books: Mapped[List['Book']] = relationship(back_populates='stock')
-    shops: Mapped[List['Shop']] = relationship(back_populates='stock')
-    sales: Mapped[List['Sale']] = relationship(back_populates='stock')
+    book: Mapped['Book'] = relationship(back_populates='stock')
+    shop: Mapped['Shop'] = relationship(back_populates='stock')
+    sale: Mapped['Sale'] = relationship(back_populates='stock')
 
     def __repr__(self) -> str:
         return f'Stock(id={self.id!r}, book_id={self.id_book!r}, shop_id={self.id_shop!r},' \
@@ -61,10 +62,10 @@ class Shop(Base):
     __tablename__ = 'shop'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(40))
+    name: Mapped[str] = mapped_column(String(40), nullable=False)
 
     books: Mapped[List['Book']] = relationship(back_populates='shop', cascade='all, delete-orphan')
-    stock: Mapped[List['Stock']] = relationship(back_populates='shops')
+    stock: Mapped[List['Stock']] = relationship(back_populates='shop')
 
     def __repr__(self) -> str:
         return f'Shop(id={self.id!r}, name={self.name!r}'
@@ -74,10 +75,10 @@ class Sale(Base):
     __tablename__ = 'sale'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    price: Mapped[int] = mapped_column(Numeric())
-    data_sale: Mapped[str] = mapped_column(DateTime())
+    price: Mapped[int] = mapped_column(BigInteger(), nullable=False)
+    data_sale: Mapped[str] = mapped_column(DateTime(), nullable=False)
     id_stock: Mapped[int] = mapped_column(ForeignKey("stock.id"))
-    count: Mapped[int] = mapped_column(Numeric())
+    count: Mapped[int] = mapped_column(BigInteger(), nullable=False)
 
     stock: Mapped['Stock'] = relationship(back_populates='sales')
 
